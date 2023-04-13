@@ -55,13 +55,13 @@ const queryString = `{
     }
   }`
   
-  // `session` is built as part of the OAuth process
-  const client = new shopify.clients.Graphql({session});
-  const products = await client.query({
-    data: queryString,
-  });
+  // // `session` is built as part of the OAuth process
+  // const client = new shopify.clients.Graphql({session});
+  // const products = await client.query({
+  //   data: queryString,
+  // });
 
-  console.log(products)
+  // console.log(products)
   
 
 

@@ -1,7 +1,8 @@
 import React, { Component } from 'react'
-import Client from 'shopify-buy'
+import Client from 'shopify-buy/index.unoptimized.umd';
 
 const ShopContext = React.createContext();
+
 
 const client = Client.buildClient({
     domain: process.env.REACT_APP_SHOPIFY_DOMAIN,
@@ -64,8 +65,38 @@ class ShopProvider extends Component {
     }
 
     fetchAllProducts = async () => {
+
+        // Build a custom products query using the unoptimized version of the SDK
+        const productsQuery = await client.graphQLClient.query((root) => {
+            root.addConnection('products', { args: { first: 10 } }, (product) => {
+                product.add('title');
+                product.add('handle');
+                product.add('id');
+                // product.add('tags');
+                product.add('options');
+                console.log(product)
+
+
+            });
+        });
+
+        console.log(productsQuery)
+        
+
+
+        // Call the send method with the custom products query
+        client.graphQLClient.send(productsQuery).then(({ model, data }) => {
+            // Do something with the products
+
+            console.log(data.products);
+
+            console.log(productsQuery)
+        });
+
         const products = await client.product.fetchAll();
         this.setState({ products: products })
+
+        // console.log(products)
     }
 
     fetchAllCollections = async () => {
@@ -75,7 +106,7 @@ class ShopProvider extends Component {
     }
 
     fetchCollectionWithHandle = async (collectionId) => {
-        
+
         const collection = await client.collection.fetchWithProducts(collectionId);
         this.setState({ collection: collection })
         console.log(collection)
@@ -91,13 +122,12 @@ class ShopProvider extends Component {
 
     openCart = () => { this.setState({ isCartOpen: true }) }
 
-    closeMenu = () => { this.setState({ isMenuOpen: false })}
+    closeMenu = () => { this.setState({ isMenuOpen: false }) }
 
-    openMenu = () => { this.setState({ isMenuOpen: true })}
+    openMenu = () => { this.setState({ isMenuOpen: true }) }
 
 
     render() {
-        console.log(this.state.collection)
         return (
             <ShopContext.Provider
                 value={{
